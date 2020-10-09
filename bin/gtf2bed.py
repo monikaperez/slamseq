@@ -47,7 +47,7 @@ with open(gtfFile, 'r') as f:
             attribute = re.sub("^\s*","",attribute)
             attribute = re.sub(r"\"","",attribute)
             if attribute != "":
-                key, value = attribute.split(' ')
+                key, value = attribute.split(' ')[:2]
                 attributeDict[key] = value
         if not attributeDict['transcript_id'] in entryDict:
             entryDict[attributeDict['transcript_id']] = list()
@@ -84,7 +84,7 @@ for annotationSource in sources:
                 attribute = re.sub("^\s*","",attribute)
                 attribute = re.sub(r"\"","",attribute)
                 if attribute != "":
-                    key, value = attribute.split(' ')
+                    key, value = attribute.split(' ')[:2]
                     attributeDict[key] = value
             if curTx != attributeDict['transcript_id'] and curTx != "":
 
