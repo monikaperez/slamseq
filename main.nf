@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ========================================================================================
-                         nf-core/slamseq
+                         jkobject/slamseq
 ========================================================================================
- nf-core/slamseq Analysis Pipeline.
+ jkobject/slamseq Analysis Pipeline.
  #### Homepage / Documentation
- https://github.com/nf-core/slamseq
+ https://github.com/jkobject/slamseq
 ----------------------------------------------------------------------------------------
 */
 
@@ -17,7 +17,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run nf-core/slamseq --reads '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run jkobject/slamseq --reads '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
       --input [file]                  Tab-separated file containing information about the samples in the experiment (see docs/usage.md)
@@ -267,10 +267,10 @@ Channel.from(summary.collect{ [it.key, it.value] })
     .map { k,v -> "<dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }
     .reduce { a, b -> return [a, b].join("\n            ") }
     .map { x -> """
-    id: 'nf-core-slamseq-summary'
+    id: 'jkobject-slamseq-summary'
     description: " - this information is collected when the pipeline is started."
-    section_name: 'nf-core/slamseq Workflow Summary'
-    section_href: 'https://github.com/nf-core/slamseq'
+    section_name: 'jkobject/slamseq Workflow Summary'
+    section_href: 'https://github.com/jkobject/slamseq'
     plot_type: 'html'
     data: |
         <dl class=\"dl-horizontal\">
@@ -330,7 +330,7 @@ process checkDesign {
 
 rawFileChannel
     .splitCsv( header: true, sep: '\t' )
-    .map { row -> tuple(row, file(row.reads, checkIfExists: true) ) }
+    .map { row -> tuple(row, file(row.reads1, checkIfExists: true), file(row.reads2, checkIfExists: true) ) }
     .set { rawFiles }
 
 splitChannel
@@ -348,7 +348,7 @@ vcfSampleChannel
  */
 if (params.skip_trimming) {
     rawFiles
-        .map{ it -> return tuple(it, file(it.reads)) }
+        .map{ it -> return tuple(it, file(it.reads1), file(it.reads2)) }
         .set{ trimmedFiles }
     trimgaloreQC = Channel.empty()
     trimgaloreFastQC = Channel.empty()
@@ -357,10 +357,10 @@ if (params.skip_trimming) {
         tag "$meta.name"
 
         input:
-        set val(meta), file(reads) from rawFiles
+        set val(meta), file(reads1), file(reads2) from rawFiles
 
         output:
-        set val(meta), file("TrimGalore/${meta.name}_trimmed.fq.gz") into trimmedFiles
+        set val(meta), file("TrimGalore/${meta.name}_val_1.fq.gz"), file("TrimGalore/${meta.name}_val_2.fq.gz") into trimmedFiles
         file ("TrimGalore/*.txt") into trimgaloreQC
         file ("TrimGalore/*.{zip,html}") into trimgaloreFastQC
 
@@ -368,9 +368,13 @@ if (params.skip_trimming) {
         """
         mkdir -p TrimGalore
         trim_galore \\
-            $reads \\
+            $reads1 \\
+            $reads2 \\
             --stringency 3 \\
+            --paired \\
             --fastqc \\
+            --retain_unpaired \\
+            -stringency $task.stringency \\
             --cores $task.cpus \\
             --output_dir TrimGalore \\
             --basename ${meta.name}
@@ -385,7 +389,7 @@ process map {
     tag "$meta.name"
 
     input:
-    set val(meta), file(fastq) from trimmedFiles
+    set val(meta), file(fastq1), file(fastq2) from trimmedFiles
     each file(fasta) from fastaMapChannel
 
     output:
@@ -395,6 +399,8 @@ process map {
     quantseq = params.quantseq ? "-q" : ""
     endtoend = params.endtoend ? "-e" : ""
     """
+    pip3 install git+https://github.com/jkobject/slamdunk.git --upgrade
+
     slamdunk map \\
         -r $fasta \\
         -o map \\
@@ -408,7 +414,8 @@ process map {
         --skip-sam \\
         $quantseq \\
         $endtoend \\
-        $fastq
+        $fastq1 \\
+        $fastq2
     """
  }
 
@@ -693,7 +700,36 @@ slamdunkCountAlleyoop
     .set { slamdunkCountAlleyoopCollected }
 
 /*
- * STEP 11 - Summary
+ * STEP 11 - spiking
+ */
+process spiking {
+    tag "$name"
+    label 'slamdunk_process'
+
+    input:
+    set val(name), file(bam) from slamdunkForTcPerUtrPosChannel
+
+    output:
+    file("*_scaling.txt") into scalings
+    file("filt/ERCC_*") into erccbam
+
+    when:
+    params.spiking
+
+    """
+    mkdir -p filt
+    samtools view -hb $bam $params.ERCCs > filt/ERCC_${name}.bam
+    bedtools genomecov -ibam filt/ERCC_${name}.bam > filt/spikeInCounts.bed
+    a=$(samtools view -c -F 260 $bam)
+    b=$(samtools view -c -F 260 filt/ERCC_${name}.bam)
+    echo $(bc <<< "scale=8; "$b"/"$a) >> ${name}_scaling.txt;
+    """
+}
+
+
+
+ /*
+ * STEP 12 - Summary
  */
 process summary {
 
@@ -803,9 +839,9 @@ process output_documentation {
 workflow.onComplete {
 
     // Set up the e-mail variables
-    def subject = "[nf-core/slamseq] Successful: $workflow.runName"
+    def subject = "[jkobject/slamseq] Successful: $workflow.runName"
     if (!workflow.success) {
-        subject = "[nf-core/slamseq] FAILED: $workflow.runName"
+        subject = "[jkobject/slamseq] FAILED: $workflow.runName"
     }
     def email_fields = [:]
     email_fields['version'] = workflow.manifest.version
@@ -836,12 +872,12 @@ workflow.onComplete {
         if (workflow.success) {
             mqc_report = ch_multiqc_report.getVal()
             if (mqc_report.getClass() == ArrayList) {
-                log.warn "[nf-core/slamseq] Found multiple reports from process 'multiqc', will use only one"
+                log.warn "[jkobject/slamseq] Found multiple reports from process 'multiqc', will use only one"
                 mqc_report = mqc_report[0]
             }
         }
     } catch (all) {
-        log.warn "[nf-core/slamseq] Could not attach MultiQC report to summary email"
+        log.warn "[jkobject/slamseq] Could not attach MultiQC report to summary email"
     }
 
     // Check if we are only sending emails on failure
@@ -873,11 +909,11 @@ workflow.onComplete {
             if (params.plaintext_email) { throw GroovyException('Send plaintext e-mail, not HTML') }
             // Try to send HTML e-mail using sendmail
             [ 'sendmail', '-t' ].execute() << sendmail_html
-            log.info "[nf-core/slamseq] Sent summary e-mail to $email_address (sendmail)"
+            log.info "[jkobject/slamseq] Sent summary e-mail to $email_address (sendmail)"
         } catch (all) {
             // Catch failures and try with plaintext
             [ 'mail', '-s', subject, email_address ].execute() << email_txt
-            log.info "[nf-core/slamseq] Sent summary e-mail to $email_address (mail)"
+            log.info "[jkobject/slamseq] Sent summary e-mail to $email_address (mail)"
         }
     }
 
@@ -903,10 +939,10 @@ workflow.onComplete {
     }
 
     if (workflow.success) {
-        log.info "-${c_purple}[nf-core/slamseq]${c_green} Pipeline completed successfully${c_reset}-"
+        log.info "-${c_purple}[jkobject/slamseq]${c_green} Pipeline completed successfully${c_reset}-"
     } else {
         checkHostname()
-        log.info "-${c_purple}[nf-core/slamseq]${c_red} Pipeline completed with errors${c_reset}-"
+        log.info "-${c_purple}[jkobject/slamseq]${c_red} Pipeline completed with errors${c_reset}-"
     }
 
 }
@@ -926,11 +962,11 @@ def nfcoreHeader() {
 
     return """    -${c_dim}--------------------------------------------------${c_reset}-
                                             ${c_green},--.${c_black}/${c_green},-.${c_reset}
-    ${c_blue}        ___     __   __   __   ___     ${c_green}/,-._.--~\'${c_reset}
-    ${c_blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
-    ${c_blue}  | \\| |       \\__, \\__/ |  \\ |___     ${c_green}\\`-._,-`-,${c_reset}
+    ${c_blue}         ___    __    __    __   ___     ${c_green}/,-._.--~\'${c_reset}
+    ${c_blue}  |\\ | |__ __ /   ` /  \\ |__) |__         ${c_yellow}}  {${c_reset}
+    ${c_blue}  | \\| |      \\__, \\__/ |  \\|___     ${c_green}\\`-._,-`-,${c_reset}
                                             ${c_green}`._,._,\'${c_reset}
-    ${c_purple}  nf-core/slamseq v${workflow.manifest.version}${c_reset}
+    ${c_purple}  jkobject/slamseq v${workflow.manifest.version}${c_reset}
     -${c_dim}--------------------------------------------------${c_reset}-
     """.stripIndent()
 }
