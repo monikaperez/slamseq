@@ -374,8 +374,8 @@ if (params.skip_trimming) {
             --paired \\
             --fastqc \\
             --retain_unpaired \\
-            -stringency $task.stringency \\
-            --cores $task.cpus \\
+            -stringency ${task.stringency} \\
+            --cores ${task.cpus} \\
             --output_dir TrimGalore \\
             --basename ${meta.name}
         """
@@ -720,9 +720,9 @@ process spiking {
     mkdir -p filt
     samtools view -hb $bam $params.ERCCs > filt/ERCC_${name}.bam
     bedtools genomecov -ibam filt/ERCC_${name}.bam > filt/spikeInCounts.bed
-    a=$(samtools view -c -F 260 $bam)
-    b=$(samtools view -c -F 260 filt/ERCC_${name}.bam)
-    echo $(bc <<< "scale=8; "$b"/"$a) >> ${name}_scaling.txt;
+    a=\$(samtools view -c -F 260 $bam)
+    b=\$(samtools view -c -F 260 filt/ERCC_${name}.bam)
+    echo \$(bc <<< "scale=8; "\$b"/"\$a) >> ${name}_scaling.txt;
     """
 }
 

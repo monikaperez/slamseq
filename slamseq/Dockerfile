@@ -17,25 +17,34 @@ RUN conda env create -f /environment.yml && conda clean -a &&\
       touch .Rprofile &&\
       touch .Renviron &&\
 
-      apt-get install -y bc &&\
+      apt-get update &&\
+      apt-get install -y \
+      bc \
+      gcc \
+      make \
+      libncurses5-dev \
+      zlib1g-dev \
+      libbz2-dev \
+      g++ \
+      liblzma-dev &&\
 
-      # installing samtools wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 && bzip2 -d samtools-1.11.tar.bz2 && tar xf samtools-1.11.tar && rm samtools-1.11.tar && cd samtools-1.11 && ./configure --enable-plugins && sudo make && sudo make install && cd ..
+      # installing samtools wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 && bzip2 -d samtools-1.11.tar.bz2 && tar xf samtools-1.11.tar && rm samtools-1.11.tar && cd samtools-1.11 && ./configure --enable-plugins && make && make install && cd ..
       wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 &&\
       bzip2 -d samtools-1.11.tar.bz2 &&\
       tar xf samtools-1.11.tar &&\
       rm samtools-1.11.tar &&\
       cd samtools-1.11 &&\
       ./configure --enable-plugins &&\
-      sudo make &&\
-      sudo make install &&\
+      make &&\
+      make install &&\
       cd .. &&\
       # echo "export PATH=/samtools-1.11/bin:$PATH" >> ~/.bashrc &&\
 
-# installing bedtools wget https://github.com/arq5x/bedtools2/releases/download/v2.29.2/bedtools-2.29.2.tar.gz && tar -xzf bedtools-2.29.2.tar.gz && rm bedtools-2.29.2.tar.gz && cd bedtools2 && sudo make && sudo make install && cd .. 
+# installing bedtools wget https://github.com/arq5x/bedtools2/releases/download/v2.29.2/bedtools-2.29.2.tar.gz && tar -xzf bedtools-2.29.2.tar.gz && rm bedtools-2.29.2.tar.gz && cd bedtools2 && make && make install && cd .. 
       wget https://github.com/arq5x/bedtools2/releases/download/v2.29.2/bedtools-2.29.2.tar.gz &&\
       tar -xzf bedtools-2.29.2.tar.gz &&\
       rm bedtools-2.29.2.tar.gz &&\
       cd bedtools2 &&\
-      sudo make &&\
-      sudo make install &&\
-      cd .. &&\
+      make &&\
+      make install &&\
+      cd ..
