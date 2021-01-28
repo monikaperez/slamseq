@@ -138,6 +138,7 @@ if (!params.bed) {
 
     process gtf2bed {
         tag "$gtf"
+        label 'process_low'
 
         input:
         file gtf from gtfChannel
@@ -312,7 +313,6 @@ process get_software_versions {
  */
 process checkDesign {
     tag "$design"
-    memory '2 GB'
 
     input:
     file design from checkChannel
