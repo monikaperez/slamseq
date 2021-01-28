@@ -26,10 +26,10 @@ RUN conda env create -f /environment.yml && conda clean -a &&\
       zlib1g-dev \
       libbz2-dev \
       g++ \
-      liblzma-dev &&\
+      liblzma-dev
 
       # installing samtools wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 && bzip2 -d samtools-1.11.tar.bz2 && tar xf samtools-1.11.tar && rm samtools-1.11.tar && cd samtools-1.11 && ./configure --enable-plugins && make && make install && cd ..
-      wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 &&\
+RUN wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 &&\
       bzip2 -d samtools-1.11.tar.bz2 &&\
       tar xf samtools-1.11.tar &&\
       rm samtools-1.11.tar &&\
