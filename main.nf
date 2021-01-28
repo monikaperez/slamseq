@@ -289,6 +289,7 @@ process get_software_versions {
                       if (filename.indexOf(".csv") > 0) filename
                       else null
                 }
+    label 'process_low'
 
     output:
     file 'software_versions_mqc.yaml' into ch_software_versions_yaml
