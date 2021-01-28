@@ -440,7 +440,8 @@ process filter {
     output:
     set val(name), file("filter/*bam*") into slamdunkFilter,
                                              slamdunkCount,
-                                             slamdunkFilterSummary
+                                             slamdunkFilterSummary,
+                                             slamForSpiking
 
     script:
     multimappers = params.multimappers ? "-b ${bed}" : ""
@@ -707,7 +708,7 @@ process spiking {
     label 'slamdunk_process'
 
     input:
-    set val(name), file(bam) from slamdunkForTcPerUtrPosChannel
+    set val(name), file(bam) from slamForSpiking
 
     output:
     file("*_scaling.txt") into scalings
