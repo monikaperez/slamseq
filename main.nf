@@ -314,6 +314,7 @@ process get_software_versions {
  */
 process checkDesign {
     tag "$design"
+    label 'process_low'
 
     input:
     file design from checkChannel
