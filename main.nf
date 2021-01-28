@@ -312,6 +312,7 @@ process get_software_versions {
  */
 process checkDesign {
     tag "$design"
+    memory '2 GB'
 
     input:
     file design from checkChannel
