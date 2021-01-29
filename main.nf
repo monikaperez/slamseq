@@ -332,7 +332,7 @@ process checkDesign {
 
 rawFileChannel
     .splitCsv( header: true, sep: '\t' )
-    .map { row -> tuple(row, file(row.reads, checkIfExists: true), file(row.reads2) ) }
+    .map { row -> [row, file(row.reads, checkIfExists: true), file(row.reads2)] }
     .set { rawFiles }
 
 splitChannel
@@ -350,7 +350,7 @@ vcfSampleChannel
  */
 if (params.skip_trimming) {
     rawFiles
-        .map{ it -> return tuple(it, file(it.reads1), file(it.reads2)) }
+        .map{ it -> return [it, file(it.reads), file(it.reads2)] }
         .set{ trimmedFiles }
     trimgaloreQC = Channel.empty()
     trimgaloreFastQC = Channel.empty()
@@ -359,7 +359,7 @@ if (params.skip_trimming) {
         tag "$meta.name"
 
         input:
-        set val(meta), file(reads1), file(reads2) from rawFiles
+        set val(meta), file(reads), file(reads2) from rawFiles
 
         output:
         set val(meta), file("TrimGalore/${meta.name}_val_1.fq.gz"), file("TrimGalore/${meta.name}_val_2.fq.gz") into trimmedFiles

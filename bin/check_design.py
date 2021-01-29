@@ -77,6 +77,11 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
     if len(header) == 7:
         regularDesign = True
 
+    if len(header) == 6:
+        fout.write("\t".join(EXTHEADER2) + "\n")
+    else:
+        fout.write("\t".join(EXTHEADER) + "\n")
+
     for line in f:
         fields = line.rstrip().split("," if csv else "\t")
         group = fields[0]
@@ -87,6 +92,8 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             print('considering paired end mode')
             reads1 = fields[3]
             reads2 = fields[4]
+        else:
+            print("considering single end mode")
 
         if regularDesign and len(fields) == 7:
             name = fields[4]
@@ -121,10 +128,8 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             print("{}: Reads FastQ file has incorrect extension (has to be '.fastq.gz' or 'fq.gz') - {}\nLine: '{}'".format(ERROR_STR,fastq,line.strip()))
             sys.exit(1)
         if len(header) == 6:
-            fout.write("\t".join(EXTHEADER2) + "\n")
             fout.write("\t".join([group, condition, control, reads1, reads2, name, type, time]) + "\n")
         else:
-            fout.write("\t".join(EXTHEADER) + "\n")
             fout.write("\t".join([group, condition, control, reads, name, type, time]) + "\n")
 
 fout.close()
