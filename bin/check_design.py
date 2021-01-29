@@ -66,7 +66,8 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
     header = header.rstrip().split("\t")
 
     if header != HEADER1 and header != EXTHEADER and header != HEADER2:
-        print("{} header: {} != {}".format(ERROR_STR,','.join(header),','.join(HEADER)))
+        print("{} header: {} != {}".format(
+            ERROR_STR, ','.join(header), ','.join(HEADER1)))
         sys.exit(1)
 
     fout.write("\t".join(EXTHEADER) + "\n")
