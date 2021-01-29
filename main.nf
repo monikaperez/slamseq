@@ -370,7 +370,7 @@ if (params.skip_trimming) {
         """
         mkdir -p TrimGalore
         trim_galore \\
-            $reads1 \\
+            $reads \\
             $reads2 \\
             --stringency 3 \\
             --paired \\
