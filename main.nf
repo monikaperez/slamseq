@@ -289,8 +289,6 @@ process get_software_versions {
                       if (filename.indexOf(".csv") > 0) filename
                       else null
                 }
-    label 'process_low'
-
     output:
     file 'software_versions_mqc.yaml' into ch_software_versions_yaml
     file "software_versions.csv"
@@ -302,6 +300,8 @@ process get_software_versions {
     fastqc --version > v_fastqc.txt
     trim_galore --version > v_trimgalore.txt
     slamdunk --version > v_slamdunk.txt
+    samtools --version > v_samtools.txt
+    bedtools --version > v_bedtools.txt
     echo \$(R --version 2>&1) > v_R.txt
     R -e 'packageVersion("DESeq2")' | grep "\\[1\\]" > v_DESeq2.txt
     multiqc --version > v_multiqc.txt
@@ -314,7 +314,6 @@ process get_software_versions {
  */
 process checkDesign {
     tag "$design"
-    label 'process_low'
 
     input:
     file design from checkChannel

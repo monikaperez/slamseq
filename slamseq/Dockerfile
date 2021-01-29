@@ -7,28 +7,14 @@ COPY environment.yml /
 # Add conda installation dir to PATH (instead of doing 'conda activate')
 ENV PATH /opt/conda/envs/nf-core-slamseq-1.0.0/bin:$PATH
 
-RUN conda env create -f /environment.yml && conda clean -a &&\
-
-
-
 # Dump the details of the installed packages to a file for posterity
-      conda env export --name nf-core-slamseq-1.0.0 > nf-core-slamseq-1.0.0.yml &&\
+RUN conda env export --name nf-core-slamseq-1.0.0 > nf-core-slamseq-1.0.0.yml &&\
+      conda activate &&\
+      conda remove slamdunk -y &&\
+      pip install git+ &&\
+      apt install bc
 
-      touch .Rprofile &&\
-      touch .Renviron &&\
-
-      apt-get update &&\
-      apt-get install -y \
-      bc \
-      gcc \
-      make \
-      libncurses5-dev \
-      zlib1g-dev \
-      libbz2-dev \
-      g++ \
-      liblzma-dev
-
-      # installing samtools wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 && bzip2 -d samtools-1.11.tar.bz2 && tar xf samtools-1.11.tar && rm samtools-1.11.tar && cd samtools-1.11 && ./configure --enable-plugins && make && make install && cd ..
+# installing samtools wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 && bzip2 -d samtools-1.11.tar.bz2 && tar xf samtools-1.11.tar && rm samtools-1.11.tar && cd samtools-1.11 && ./configure --enable-plugins && make && make install && cd ..
 RUN wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 &&\
       bzip2 -d samtools-1.11.tar.bz2 &&\
       tar xf samtools-1.11.tar &&\
