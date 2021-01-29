@@ -380,7 +380,6 @@ if (params.skip_trimming) {
                 --stringency 3 \\
                 --fastqc \\
                 --retain_unpaired \\
-                -stringency ${task.stringency} \\
                 --cores ${task.cpus} \\
                 --output_dir TrimGalore \\
                 --basename ${meta.name}
@@ -395,7 +394,6 @@ if (params.skip_trimming) {
                 --paired \\
                 --fastqc \\
                 --retain_unpaired \\
-                -stringency ${task.stringency} \\
                 --cores ${task.cpus} \\
                 --output_dir TrimGalore \\
                 --basename ${meta.name}
