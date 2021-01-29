@@ -739,11 +739,11 @@ process spiking {
     params.spiking
 
     """
-    samtools view -hb $bam $params.ERCCs > ERCC_${name}.bam
+    samtools view -hb ${bam} ${params.ERCCs} > ERCC_${name}.bam
     bedtools genomecov -ibam ERCC_${name}.bam > ERCC_${name}_spikecounts.bed
-    a=\$(samtools view -c -F 260 $bam)
+    a=\$(samtools view -c -F 260 ${bam})
     b=\$(samtools view -c -F 260 ERCC_${name}.bam)
-    echo \$a,\$b >> ERCC_$${name}_scales.txt;
+    echo \$a,\$b >> ERCC_${name}_scales.txt;
     """
 }
 
