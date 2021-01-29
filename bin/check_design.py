@@ -54,8 +54,8 @@ args = argParser.parse_args()
 ############################################
 
 ERROR_STR = 'ERROR: Please check design file'
-
-HEADER = ['group', 'condition', 'control', 'reads']
+HEADER1 = ['group', 'condition', 'control', 'reads']
+HEADER2 = ['group', 'condition', 'control', 'reads1', 'reads2', 'name']
 EXTHEADER = ['group', 'condition', 'control', 'reads','name','type','time']
 
 fout = open(args.DESIGN_FILE_OUT,'w')
@@ -65,7 +65,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
 
     header = header.rstrip().split("\t")
 
-    if header != HEADER and header != EXTHEADER:
+    if header != HEADER1 and header != EXTHEADER and header != HEADER2:
         print("{} header: {} != {}".format(ERROR_STR,','.join(header),','.join(HEADER)))
         sys.exit(1)
 
@@ -81,14 +81,18 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
         group = fields[0]
         condition = fields[1]
         control = fields[2]
-        reads = fields[3]
+        reads = fields[3] 
+        if len(header) == 6:
+            print('considering paired end mode')
+            reads1 = fields[3]
+            reads2 = fields[4]
 
         if regularDesign and len(fields) == 7:
             name = fields[4]
             type = fields[5]
             time = fields[6]
         else :
-            name = ""
+            name = fields[5] if len(header)==6 else ""
             type = ""
             time = ""
 
@@ -116,6 +120,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             print("{}: Reads FastQ file has incorrect extension (has to be '.fastq.gz' or 'fq.gz') - {}\nLine: '{}'".format(ERROR_STR,fastq,line.strip()))
             sys.exit(1)
 
-        fout.write("\t".join([group, condition, control, reads, name, type, time]) + "\n")
+        fout.write("\t".join([group, condition, control, (reads1, reads2) if len(
+            header) == 6 else reads, name, type, time]) + "\n")
 
 fout.close()
