@@ -121,9 +121,9 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             sys.exit(1)
         if len(header) == 6:
             fout.write(",".join(EXTHEADER2) + "\n")
+            fout.write(",".join([group, condition, control, reads1, reads2, name, type, time]) + "\n")
         else:
             fout.write(",".join(EXTHEADER) + "\n")
-        fout.write(",".join([group, condition, control, (reads1, reads2) if len(
-            header) == 6 else reads, name, type, time]) + "\n")
+            fout.write(",".join([group, condition, control, reads, name, type, time]) + "\n")
 
 fout.close()
