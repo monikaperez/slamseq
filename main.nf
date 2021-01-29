@@ -387,8 +387,8 @@ if (params.skip_trimming) {
             """
             mkdir -p TrimGalore
             trim_galore \\
-                $reads[0] \\
-                $reads[1] \\
+                ${reads[0]} \\
+                ${reads[1]} \\
                 --stringency 3 \\
                 --paired \\
                 --fastqc \\
@@ -723,7 +723,7 @@ slamdunkCountAlleyoop
 process spiking {
     tag "$name"
 
-    publishDir "${params.outdir}/scaling/", mode: params.publish_dir_mode,
+    publishDir "${params.outdir}/scaling/",
         saveAs: { filename ->
                     if (filename.startsWith('ERCC_')) "$filename"
                 }
