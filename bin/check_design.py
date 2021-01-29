@@ -57,7 +57,7 @@ ERROR_STR = 'ERROR: Please check design file'
 HEADER1 = ['group', 'condition', 'control', 'reads']
 HEADER2 = ['group', 'condition', 'control', 'reads1', 'reads2', 'name']
 EXTHEADER = ['group', 'condition', 'control', 'reads','name','type','time']
-EXTHEADER2 = ['group', 'condition', 'control', 'reads1','reads2','name','type','time']
+EXTHEADER2 = ['group', 'condition', 'control', 'reads','reads2','name','type','time']
 
 fout = open(args.DESIGN_FILE_OUT,'w')
 

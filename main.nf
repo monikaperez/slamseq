@@ -332,7 +332,7 @@ process checkDesign {
 
 rawFileChannel
     .splitCsv( header: true, sep: '\t' )
-    .map { row -> tuple(row, file(row.reads1, checkIfExists: true), file(row.reads2, checkIfExists: true) ) }
+    .map { row -> tuple(row, file(row.reads, checkIfExists: true), file(row.reads2) ) }
     .set { rawFiles }
 
 splitChannel
