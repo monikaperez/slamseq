@@ -55,7 +55,7 @@ args = argParser.parse_args()
 
 ERROR_STR = 'ERROR: Please check design file'
 HEADER1 = ['group', 'condition', 'control', 'reads']
-HEADER2 = ['group', 'condition', 'control', 'reads1', 'reads2', 'name']
+HEADER2 = ['group', 'condition', 'control', 'reads', 'reads2', 'name']
 EXTHEADER = ['group', 'condition', 'control', 'reads','name','type','time']
 EXTHEADER2 = ['group', 'condition', 'control', 'reads','reads2','name','type','time']
 
@@ -128,7 +128,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             print("{}: Reads FastQ file has incorrect extension (has to be '.fastq.gz' or 'fq.gz') - {}\nLine: '{}'".format(ERROR_STR,fastq,line.strip()))
             sys.exit(1)
         if len(header) == 6:
-            fout.write("\t".join([group, condition, control, reads1, reads2, name, type, time]) + "\n")
+            fout.write("\t".join([group, condition, control, reads, reads2, name, type, time]) + "\n")
         else:
             fout.write("\t".join([group, condition, control, reads, name, type, time]) + "\n")
 
