@@ -330,10 +330,17 @@ process checkDesign {
     """
 }
 
-rawFileChannel
-    .splitCsv( header: true, sep: '\t' )
-    .map { row -> [row, file(row.reads, checkIfExists: true), file(row.reads2)] }
-    .set { rawFiles }
+if (params.single_end) {
+    rawFileChannel
+        .splitCsv( header: true, sep: '\t' )
+        .map { row -> [row, file(row.reads, checkIfExists: true)] }
+        .set { rawFiles }
+}else{
+     rawFileChannel
+        .splitCsv( header: true, sep: '\t' )
+        .map { row -> [row, file(row.reads, checkIfExists: true), file(row.reads2, checkIfExists: true))] }
+        .set { rawFiles }   
+}
 
 splitChannel
     .splitCsv( header: true, sep: '\t' )
@@ -349,9 +356,7 @@ vcfSampleChannel
  * STEP 1 - TrimGalore!
  */
 if (params.skip_trimming) {
-    rawFiles
-        .map{ it -> return [it, file(it.reads), file(it.reads2)] }
-        .set{ trimmedFiles }
+    trimmedFiles = rawFiles
     trimgaloreQC = Channel.empty()
     trimgaloreFastQC = Channel.empty()
 } else {
@@ -359,7 +364,7 @@ if (params.skip_trimming) {
         tag "$meta.name"
 
         input:
-        set val(meta), file(reads), file(reads2) from rawFiles
+        tuple val(meta), file(reads) from rawFiles
 
         output:
         set val(meta), file("TrimGalore/${meta.name}_val_1.fq.gz"), file("TrimGalore/${meta.name}_val_2.fq.gz") into trimmedFiles
@@ -367,20 +372,35 @@ if (params.skip_trimming) {
         file ("TrimGalore/*.{zip,html}") into trimgaloreFastQC
 
         script:
-        """
-        mkdir -p TrimGalore
-        trim_galore \\
-            $reads \\
-            $reads2 \\
-            --stringency 3 \\
-            --paired \\
-            --fastqc \\
-            --retain_unpaired \\
-            -stringency ${task.stringency} \\
-            --cores ${task.cpus} \\
-            --output_dir TrimGalore \\
-            --basename ${meta.name}
-        """
+        if (params.single_end) {
+            """
+            mkdir -p TrimGalore
+            trim_galore \\
+                $reads \\
+                --stringency 3 \\
+                --fastqc \\
+                --retain_unpaired \\
+                -stringency ${task.stringency} \\
+                --cores ${task.cpus} \\
+                --output_dir TrimGalore \\
+                --basename ${meta.name}
+            """
+        }else{
+            """
+            mkdir -p TrimGalore
+            trim_galore \\
+                $reads[0] \\
+                $reads[1] \\
+                --stringency 3 \\
+                --paired \\
+                --fastqc \\
+                --retain_unpaired \\
+                -stringency ${task.stringency} \\
+                --cores ${task.cpus} \\
+                --output_dir TrimGalore \\
+                --basename ${meta.name}
+            """
+        }
     }
 }
 
@@ -391,7 +411,7 @@ process map {
     tag "$meta.name"
 
     input:
-    set val(meta), file(fastq1), file(fastq2) from trimmedFiles
+    tuple val(meta), file(fastqs) from trimmedFiles
     each file(fasta) from fastaMapChannel
 
     output:
@@ -400,25 +420,42 @@ process map {
     script:
     quantseq = params.quantseq ? "-q" : ""
     endtoend = params.endtoend ? "-e" : ""
-    """
-    pip3 install git+https://github.com/jkobject/slamdunk.git --upgrade
-
-    slamdunk map \\
-        -r $fasta \\
-        -o map \\
-        -5 $params.trim5 \\
-        -n 100 \\
-        -a $params.polyA \\
-        -t $task.cpus \\
-        --sampleName ${meta.name} \\
-        --sampleType ${meta.type} \\
-        --sampleTime ${meta.time} \\
-        --skip-sam \\
-        $quantseq \\
-        $endtoend \\
-        $fastq1 \\
-        $fastq2
-    """
+    if (params.single_end) {
+        """
+        slamdunk map \\
+            -r $fasta \\
+            -o map \\
+            -5 $params.trim5 \\
+            -n 100 \\
+            -a $params.polyA \\
+            -t $task.cpus \\
+            --sampleName ${meta.name} \\
+            --sampleType ${meta.type} \\
+            --sampleTime ${meta.time} \\
+            --skip-sam \\
+            $quantseq \\
+            $endtoend \\
+            $fastqs \\
+        """
+    }else{
+        """
+        slamdunk map \\
+            -r $fasta \\
+            -o map \\
+            -5 $params.trim5 \\
+            -n 100 \\
+            -a $params.polyA \\
+            -t $task.cpus \\
+            --sampleName ${meta.name} \\
+            --sampleType ${meta.type} \\
+            --sampleTime ${meta.time} \\
+            --skip-sam \\
+            $quantseq \\
+            $endtoend \\
+            $fastqs[0] \\
+            $fastq2[1]
+        """
+    }
  }
 
  /*
