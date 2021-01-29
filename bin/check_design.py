@@ -64,10 +64,10 @@ fout = open(args.DESIGN_FILE_OUT,'w')
 with open(args.DESIGN_FILE_IN, 'r') as f:
     header = next(f)
 
-    header = header.rstrip().split(",")
+    header = header.rstrip().split(",").split("\t")
 
     if header not in [HEADER1, EXTHEADER, HEADER2]:
-        print("{} header: {} not in [{},{},{},{}]".format(
+        print("{} header: {} not in [[{}],[{}],[{}],[{}]]".format(
             ERROR_STR, ','.join(header), ','.join(HEADER1), ','.join(HEADER2), ','.join(EXTHEADER), ','.join(EXTHEADER2)))
         sys.exit(1)
 
@@ -77,7 +77,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
         regularDesign = True
 
     for line in f:
-        fields = line.rstrip().split(",")
+        fields = line.rstrip().split(",").split("\t")
         group = fields[0]
         condition = fields[1]
         control = fields[2]
@@ -120,10 +120,10 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             print("{}: Reads FastQ file has incorrect extension (has to be '.fastq.gz' or 'fq.gz') - {}\nLine: '{}'".format(ERROR_STR,fastq,line.strip()))
             sys.exit(1)
         if len(header) == 6:
-            fout.write(",".join(EXTHEADER2) + "\n")
-            fout.write(",".join([group, condition, control, reads1, reads2, name, type, time]) + "\n")
+            fout.write("\t".join(EXTHEADER2) + "\n")
+            fout.write("\t".join([group, condition, control, reads1, reads2, name, type, time]) + "\n")
         else:
-            fout.write(",".join(EXTHEADER) + "\n")
-            fout.write(",".join([group, condition, control, reads, name, type, time]) + "\n")
+            fout.write("\t".join(EXTHEADER) + "\n")
+            fout.write("\t".join([group, condition, control, reads, name, type, time]) + "\n")
 
 fout.close()
