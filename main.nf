@@ -338,7 +338,7 @@ if (params.single_end) {
 }else{
      rawFileChannel
         .splitCsv( header: true, sep: '\t' )
-        .map { row -> [row, file(row.reads, checkIfExists: true), file(row.reads2, checkIfExists: true))] }
+        .map { row -> [row, file(row.reads, checkIfExists: true), file(row.reads2, checkIfExists: true)] }
         .set { rawFiles }   
 }
 
