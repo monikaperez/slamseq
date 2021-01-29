@@ -63,14 +63,14 @@ fout = open(args.DESIGN_FILE_OUT,'w')
 with open(args.DESIGN_FILE_IN, 'r') as f:
     header = next(f)
 
-    header = header.rstrip().split("\t")
+    header = header.rstrip().split(",")
 
     if header != HEADER1 and header != EXTHEADER and header != HEADER2:
         print("{} header: {} != {}".format(
             ERROR_STR, ','.join(header), ','.join(HEADER1)))
         sys.exit(1)
 
-    fout.write("\t".join(EXTHEADER) + "\n")
+    fout.write(",".join(EXTHEADER) + "\n")
 
     regularDesign = False
 
@@ -78,7 +78,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
         regularDesign = True
 
     for line in f:
-        fields = line.rstrip().split("\t")
+        fields = line.rstrip().split(",")
         group = fields[0]
         condition = fields[1]
         control = fields[2]
@@ -121,7 +121,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
             print("{}: Reads FastQ file has incorrect extension (has to be '.fastq.gz' or 'fq.gz') - {}\nLine: '{}'".format(ERROR_STR,fastq,line.strip()))
             sys.exit(1)
 
-        fout.write("\t".join([group, condition, control, (reads1, reads2) if len(
+        fout.write(",".join([group, condition, control, (reads1, reads2) if len(
             header) == 6 else reads, name, type, time]) + "\n")
 
 fout.close()
