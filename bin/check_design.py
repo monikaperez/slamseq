@@ -57,6 +57,7 @@ ERROR_STR = 'ERROR: Please check design file'
 HEADER1 = ['group', 'condition', 'control', 'reads']
 HEADER2 = ['group', 'condition', 'control', 'reads1', 'reads2', 'name']
 EXTHEADER = ['group', 'condition', 'control', 'reads','name','type','time']
+EXTHEADER2 = ['group', 'condition', 'control', 'reads1','reads2','name','type','time']
 
 fout = open(args.DESIGN_FILE_OUT,'w')
 
@@ -65,12 +66,10 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
 
     header = header.rstrip().split(",")
 
-    if header != HEADER1 and header != EXTHEADER and header != HEADER2:
-        print("{} header: {} != {}".format(
-            ERROR_STR, ','.join(header), ','.join(HEADER1)))
+    if header not in [HEADER1, EXTHEADER, HEADER2]:
+        print("{} header: {} not in [{},{},{},{}]".format(
+            ERROR_STR, ','.join(header), ','.join(HEADER1), ','.join(HEADER2), ','.join(EXTHEADER), ','.join(EXTHEADER2)))
         sys.exit(1)
-
-    fout.write(",".join(EXTHEADER) + "\n")
 
     regularDesign = False
 
@@ -120,7 +119,10 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
         if reads[-9:] != '.fastq.gz' and reads[-6:] != '.fq.gz':
             print("{}: Reads FastQ file has incorrect extension (has to be '.fastq.gz' or 'fq.gz') - {}\nLine: '{}'".format(ERROR_STR,fastq,line.strip()))
             sys.exit(1)
-
+        if len(header) == 6:
+            fout.write(",".join(EXTHEADER2) + "\n")
+        else:
+            fout.write(",".join(EXTHEADER) + "\n")
         fout.write(",".join([group, condition, control, (reads1, reads2) if len(
             header) == 6 else reads, name, type, time]) + "\n")
 
