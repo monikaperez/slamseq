@@ -63,8 +63,9 @@ fout = open(args.DESIGN_FILE_OUT,'w')
 
 with open(args.DESIGN_FILE_IN, 'r') as f:
     header = next(f)
-
-    header = header.rstrip().split(",").split("\t")
+    a = header.rstrip()
+    csv = "," in a
+    header = a.split("," if csv else "\t")
 
     if header not in [HEADER1, EXTHEADER, HEADER2]:
         print("{} header: {} not in [[{}],[{}],[{}],[{}]]".format(
@@ -77,7 +78,7 @@ with open(args.DESIGN_FILE_IN, 'r') as f:
         regularDesign = True
 
     for line in f:
-        fields = line.rstrip().split(",").split("\t")
+        fields = line.rstrip().split("," if csv else "\t")
         group = fields[0]
         condition = fields[1]
         control = fields[2]
