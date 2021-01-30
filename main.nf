@@ -366,7 +366,7 @@ if (params.skip_trimming) {
         tuple val(meta), file(reads) from rawFiles
 
         output:
-        set val(meta), path('*.fq.gz') into trimmedFiles
+        set val(meta), path('TrimGalore/*.fq.gz') into trimmedFiles
         file ("TrimGalore/*.txt") into trimgaloreQC
         file ("TrimGalore/*.{zip,html}") into trimgaloreFastQC
 
