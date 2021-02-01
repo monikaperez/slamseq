@@ -425,9 +425,6 @@ process map {
         -n 100 \\
         -a $params.polyA \\
         -t $task.cpus \\
-        --sampleName ${meta.name} \\
-        --sampleType ${meta.type} \\
-        --sampleTime ${meta.time} \\
         --skip-sam \\
         $quantseq \\
         $endtoend \\
