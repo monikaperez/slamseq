@@ -419,6 +419,8 @@ process map {
     endtoend = params.endtoend ? "-e" : ""
     """
     which slamdunk
+    pip uninstall slamdunk
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     slamdunk map \\
         -r $fasta \\
         -o map \\
@@ -426,6 +428,7 @@ process map {
         -n 100 \\
         -a $params.polyA \\
         -t $task.cpus \\
+        -N ${meta.name} \\
         --skip-sam \\
         $quantseq \\
         $endtoend \\
