@@ -418,6 +418,7 @@ process map {
     quantseq = params.quantseq ? "-q" : ""
     endtoend = params.endtoend ? "-e" : ""
     """
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     slamdunk map \\
         -r $fasta \\
         -o map \\
@@ -459,6 +460,7 @@ process filter {
     script:
     multimappers = params.multimappers ? "-b ${bed}" : ""
     """
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     slamdunk filter \\
         -o filter \\
         $multimappers \\
@@ -488,6 +490,7 @@ process snp {
 
     script:
     """
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     slamdunk snp \\
         -o snp \\
         -r $fasta \\
@@ -535,6 +538,7 @@ process count {
     script:
     snpMode = params.vcf ? "-v $params.vcf" : "-s . "
     """
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     slamdunk count -o count \\
         -r $fasta \\
         $snpMode \\
