@@ -418,6 +418,7 @@ process map {
     quantseq = params.quantseq ? "-q" : ""
     endtoend = params.endtoend ? "-e" : ""
     """
+    conda activate nf-core-slamseq-1.0.0
     pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     which slamdunk
     slamdunk map \\
