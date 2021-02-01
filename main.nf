@@ -419,8 +419,8 @@ process map {
     endtoend = params.endtoend ? "-e" : ""
     """
     which slamdunk
-    pip uninstall slamdunk
-    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
+    pip uninstall slamdunk -y
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade -y
     slamdunk map \\
         -r $fasta \\
         -o map \\
