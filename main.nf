@@ -419,6 +419,7 @@ process map {
     endtoend = params.endtoend ? "-e" : ""
     """
     pip install git+https://github.com/jkobject/slamdunk.git --upgrade
+    which slamdunk
     slamdunk map \\
         -r $fasta \\
         -o map \\
