@@ -393,7 +393,6 @@ if (params.skip_trimming) {
                 --paired \\
                 --fastqc \\
                 --gzip \\
-                --retain_unpaired \\
                 --cores ${task.cpus} \\
                 --output_dir TrimGalore \\
                 --basename ${meta.name}
