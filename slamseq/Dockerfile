@@ -7,9 +7,12 @@ ENV PATH /opt/conda/envs/nf-core-slamseq-1.0.0/bin:$PATH
 # Dump the details of the installed packages to a file for posterity
 RUN conda env export --name nf-core-slamseq-1.0.0 > nf-core-slamseq-1.0.0.yml &&\
       conda activate &&\
-      conda remove slamdunk -y &&\
-      pip install git+ &&\
-      apt install bc
+      pip uninstall slamdunk -y &&\
+      conda config --add channels bioconda &&\
+      conda config --add channels conda-forge &&\
+      conda install nextgenmap &&\
+      pip install git+https://github.com/jkobject/slamdunk.git --upgrade &&\
+
 
 # installing samtools wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 && bzip2 -d samtools-1.11.tar.bz2 && tar xf samtools-1.11.tar && rm samtools-1.11.tar && cd samtools-1.11 && ./configure --enable-plugins && make && make install && cd ..
 RUN wget https://github.com/samtools/samtools/releases/download/1.11/samtools-1.11.tar.bz2 &&\

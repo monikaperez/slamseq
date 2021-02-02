@@ -417,6 +417,7 @@ process map {
     script:
     quantseq = params.quantseq ? "-q" : ""
     endtoend = params.endtoend ? "-e" : ""
+    topn = params.single_end? "100":"1"
     """
     which slamdunk
     pip uninstall slamdunk -y
@@ -425,7 +426,7 @@ process map {
         -r $fasta \\
         -o map \\
         -5 $params.trim5 \\
-        -n 100 \\
+        -n $topn \\
         -a $params.polyA \\
         -t $task.cpus \\
         -N ${meta.name} \\
