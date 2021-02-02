@@ -420,7 +420,7 @@ process map {
     """
     which slamdunk
     pip uninstall slamdunk -y
-    pip install git+https://github.com/jkobject/slamdunk.git --upgrade -y
+    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
     slamdunk map \\
         -r $fasta \\
         -o map \\
