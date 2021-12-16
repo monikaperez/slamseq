@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ========================================================================================
-                         jkobject/slamseq
+                         monikaperez/slamseq
 ========================================================================================
- jkobject/slamseq Analysis Pipeline.
+ monikaperez/slamseq Analysis Pipeline.
  #### Homepage / Documentation
- https://github.com/jkobject/slamseq
+ https://github.com/monikaperez/slamseq
 ----------------------------------------------------------------------------------------
 */
 
@@ -17,7 +17,7 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run jkobject/slamseq --reads '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run monikaperez/slamseq --reads '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
       --input [file]                  Tab-separated file containing information about the samples in the experiment (see docs/usage.md)
@@ -267,10 +267,10 @@ Channel.from(summary.collect{ [it.key, it.value] })
     .map { k,v -> "<dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }
     .reduce { a, b -> return [a, b].join("\n            ") }
     .map { x -> """
-    id: 'jkobject-slamseq-summary'
+    id: 'monikaperez-slamseq-summary'
     description: " - this information is collected when the pipeline is started."
-    section_name: 'jkobject/slamseq Workflow Summary'
-    section_href: 'https://github.com/jkobject/slamseq'
+    section_name: 'monikaperez/slamseq Workflow Summary'
+    section_href: 'https://github.com/monikaperez/slamseq'
     plot_type: 'html'
     data: |
         <dl class=\"dl-horizontal\">
@@ -391,8 +391,10 @@ if (params.skip_trimming) {
                 ${reads[1]} \\
                 --stringency 3 \\
                 --paired \\
+                --retain_unpaired \\
                 --fastqc \\
                 --gzip \\
+                --illumina \\
                 --cores ${task.cpus} \\
                 --output_dir TrimGalore \\
                 --basename ${meta.name}
@@ -421,7 +423,7 @@ process map {
     """
     which slamdunk
     pip uninstall slamdunk -y
-    pip install git+https://github.com/jkobject/slamdunk.git --upgrade
+    pip install git+https://github.com/monikaperez/slamdunk.git --upgrade
     slamdunk map \\
         -r $fasta \\
         -o map \\
@@ -861,9 +863,9 @@ process output_documentation {
 workflow.onComplete {
 
     // Set up the e-mail variables
-    def subject = "[jkobject/slamseq] Successful: $workflow.runName"
+    def subject = "[monikaperez/slamseq] Successful: $workflow.runName"
     if (!workflow.success) {
-        subject = "[jkobject/slamseq] FAILED: $workflow.runName"
+        subject = "[monikaperez/slamseq] FAILED: $workflow.runName"
     }
     def email_fields = [:]
     email_fields['version'] = workflow.manifest.version
@@ -894,12 +896,12 @@ workflow.onComplete {
         if (workflow.success) {
             mqc_report = ch_multiqc_report.getVal()
             if (mqc_report.getClass() == ArrayList) {
-                log.warn "[jkobject/slamseq] Found multiple reports from process 'multiqc', will use only one"
+                log.warn "[monikaperez/slamseq] Found multiple reports from process 'multiqc', will use only one"
                 mqc_report = mqc_report[0]
             }
         }
     } catch (all) {
-        log.warn "[jkobject/slamseq] Could not attach MultiQC report to summary email"
+        log.warn "[monikaperez/slamseq] Could not attach MultiQC report to summary email"
     }
 
     // Check if we are only sending emails on failure
@@ -931,11 +933,11 @@ workflow.onComplete {
             if (params.plaintext_email) { throw GroovyException('Send plaintext e-mail, not HTML') }
             // Try to send HTML e-mail using sendmail
             [ 'sendmail', '-t' ].execute() << sendmail_html
-            log.info "[jkobject/slamseq] Sent summary e-mail to $email_address (sendmail)"
+            log.info "[monikaperez/slamseq] Sent summary e-mail to $email_address (sendmail)"
         } catch (all) {
             // Catch failures and try with plaintext
             [ 'mail', '-s', subject, email_address ].execute() << email_txt
-            log.info "[jkobject/slamseq] Sent summary e-mail to $email_address (mail)"
+            log.info "[monikaperez/slamseq] Sent summary e-mail to $email_address (mail)"
         }
     }
 
@@ -961,10 +963,10 @@ workflow.onComplete {
     }
 
     if (workflow.success) {
-        log.info "-${c_purple}[jkobject/slamseq]${c_green} Pipeline completed successfully${c_reset}-"
+        log.info "-${c_purple}[monikaperez/slamseq]${c_green} Pipeline completed successfully${c_reset}-"
     } else {
         checkHostname()
-        log.info "-${c_purple}[jkobject/slamseq]${c_red} Pipeline completed with errors${c_reset}-"
+        log.info "-${c_purple}[monikaperez/slamseq]${c_red} Pipeline completed with errors${c_reset}-"
     }
 
 }
