@@ -11,6 +11,8 @@ dependencies:
   - conda-forge::pymdown-extensions=6.0
   - conda-forge::pygments=2.5.2
   - trim-galore=0.6.5
+  - fastqc=0.11
+  - cutadapt=3.4
   - multiqc=1.8
   - slamdunk=0.4.3
   - r-gridextra=2.3
